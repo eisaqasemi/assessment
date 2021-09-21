@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nodeserver-ds
+spec:  
+  selector:
+    matchLabels:
+      app: nodeserver
+  template:
+    metadata:
+      name: nodeserver-ds
+      labels:
+        app: nodeserver
+    spec:  
+      tolerations: 
+# If you want to run it on master nodes too
+      # - key: node-role.kubernetes.io/master
+      #   operator: Exists
+      #   effect: NoSchedule
+      hostAliases:
+        - ip: "41.54.1.107"
+          hostnames:
+          - "api.nowmoney.me"
+      containers:
+      - name: nodeserver
+        image: "nowmoney/nodeserver"
+        env:
+        - name: username
+          valueFrom:
+            secretKeyRef:
+              name: nodeserver-envs
+              key: username
+        - name: password
+          valueFrom:
+            secretKeyRef:
+              name: nodeserver-envs
+              key: password
+      imagePullSecrets:
+      - name: dockerhub-creds
+      
